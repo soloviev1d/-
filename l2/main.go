@@ -27,8 +27,11 @@ func main() {
 	events3 := []FSM.Event{"1", "0", "1", "1", "1", "1"}
 
 	state1, _ := FSM.FeedThrough(fsm, events1)
+	fsm.Reset()
 	state2, _ := FSM.FeedThrough(fsm, events2)
+	fsm.Reset()
 	state3, _ := FSM.FeedThrough(fsm, events3)
+	fsm.Reset()
 
 	fmt.Printf("Actual: %s, expected: !S2\n", state1)
 	fmt.Printf("Actual: %s, expected: !S2\n", state2)

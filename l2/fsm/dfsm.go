@@ -22,3 +22,7 @@ func (fsm *DeterministicFiniteStateMachine) Transition(event Event) error {
 	fsm.current = fsm.StateMap[fsm.Current()][event]
 	return nil
 }
+
+func (fsm *DeterministicFiniteStateMachine) Reset() {
+	fsm.current = fsm.Initial
+}

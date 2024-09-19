@@ -10,14 +10,15 @@ type (
 type FiniteStateMachine interface {
 	Current() State
 	Transition(Event) error
+	Reset()
 }
 
 func FeedThrough(fsm FiniteStateMachine, events []Event) (State, error) {
 	for _, e := range events {
-		err := (fsm).Transition(e)
+		err := fsm.Transition(e)
 		if err != nil {
 			return "", err
 		}
 	}
-	return (fsm).Current(), nil
+	return fsm.Current(), nil
 }
