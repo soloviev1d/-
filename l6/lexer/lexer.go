@@ -9,7 +9,7 @@ import (
 type Token int
 
 const (
-	EOF = iota
+	EOF Token = iota
 	TYPE
 	OPERATOR
 	PUNCTUATION
@@ -25,6 +25,8 @@ const (
 	COMMA
 	SEMICOL
 	BOOLVAL
+	NONTERM
+	LOGOP
 )
 
 var tokens = []string{
@@ -44,6 +46,8 @@ var tokens = []string{
 	COMMA:       "COMMA",
 	SEMICOL:     "SEMICOLON",
 	BOOLVAL:     "BOOLEAN_VALUE",
+	NONTERM:     "S",
+	LOGOP:       "LOGICAL OPERATOR",
 }
 
 func (t Token) String() string {
@@ -181,6 +185,9 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 
 				l.Unread()
 				lit := l.Operator()
+				if _, ok := LogOpMap[lit]; ok {
+					return sp, LOGOP, lit
+				}
 				return sp, OPERATOR, lit
 			} else if unicode.IsDigit(r) {
 				sp := l.pos

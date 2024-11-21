@@ -21,12 +21,16 @@ var OpMap = map[rune]struct{}{
 	'|': struct{}{},
 	'<': struct{}{},
 	'>': struct{}{},
-	'[': struct{}{},
-	']': struct{}{},
 	'/': struct{}{},
-	'.': struct{}{},
-	'~': struct{}{},
-	':': struct{}{},
+}
+
+var LogOpMap = map[string]struct{}{
+	"<":  struct{}{},
+	">":  struct{}{},
+	"<=": struct{}{},
+	">=": struct{}{},
+	"==": struct{}{},
+	"!=": struct{}{},
 }
 
 /* keywords
