@@ -18,6 +18,12 @@ const (
 	COMMENT
 	LITERAL
 	NUM
+	LPAREN
+	RPAREN
+	LBRACE
+	RBRACE
+	COMMA
+	SEMICOL
 )
 
 var tokens = []string{
@@ -30,6 +36,12 @@ var tokens = []string{
 	COMMENT:     "COMMENT",
 	LITERAL:     "LITERAL",
 	NUM:         "NUM",
+	LPAREN:      "LPAREN",
+	RPAREN:      "RPAREN",
+	LBRACE:      "LBRACE",
+	RBRACE:      "RBRACE",
+	COMMA:       "COMMA",
+	SEMICOL:     "SEMICOL",
 }
 
 func (t Token) String() string {
@@ -150,14 +162,6 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 			l.Unread()
 			lit := l.Operator()
 			return sp, OPERATOR, lit
-		} else if isPunct(r) {
-
-			sp := l.pos
-
-			l.Unread()
-			lit := l.Punctuation()
-			return sp, PUNCTUATION, lit
-
 		} else if unicode.IsDigit(r) {
 			sp := l.pos
 			l.Unread()
@@ -168,9 +172,19 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 			l.Unread()
 			lit := l.Literal()
 			return sp, LITERAL, lit
+		} else if r == '(' {
+			return l.pos, LPAREN, string(r)
+		} else if r == ')' {
+			return l.pos, RPAREN, string(r)
+		} else if r == '{' {
+			return l.pos, LBRACE, string(r)
+		} else if r == '}' {
+			return l.pos, RBRACE, string(r)
+		} else if r == ';' {
+			return l.pos, SEMICOL, string(r)
+		} else if r == ',' {
+			return l.pos, COMMA, string(r)
 		}
-		// panic(err)
-
 	}
 }
 
@@ -250,31 +264,6 @@ func (l *Lexer) Number() string {
 			return num
 		}
 	}
-}
-
-func (l *Lexer) Punctuation() string {
-	var p string
-	for {
-		r, _, err := l.r.ReadRune()
-		if err != nil {
-			if err == io.EOF {
-				return p
-			}
-		}
-
-		l.pos.Col++
-		if r == '\n' {
-			l.Unread()
-			return p
-		}
-		if _, ok := PunctMap[r]; ok {
-			p += string(r)
-		} else {
-			l.Unread()
-			return p
-		}
-	}
-
 }
 
 func (l *Lexer) Operator() string {

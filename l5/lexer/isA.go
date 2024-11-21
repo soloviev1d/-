@@ -17,26 +17,16 @@ var OpMap = map[rune]struct{}{
 	'&': struct{}{},
 	'=': struct{}{},
 	'!': struct{}{},
-	'(': struct{}{},
-	')': struct{}{},
 	'-': struct{}{},
 	'|': struct{}{},
 	'<': struct{}{},
 	'>': struct{}{},
-
 	'[': struct{}{},
 	']': struct{}{},
 	'/': struct{}{},
 	'.': struct{}{},
 	'~': struct{}{},
 	':': struct{}{},
-}
-
-var PunctMap = map[rune]struct{}{
-	'{': struct{}{},
-	'}': struct{}{},
-	',': struct{}{},
-	';': struct{}{},
 }
 
 /* keywords
@@ -97,15 +87,6 @@ var DefaultTypeMap = map[string]struct{}{
 // returns true if r is of operator likeness
 func isOperator(r rune) bool {
 	if _, ok := OpMap[r]; ok {
-		return true
-	} else {
-		return false
-	}
-}
-
-// returns true if r is of punctuation likeness
-func isPunct(r rune) bool {
-	if _, ok := PunctMap[r]; ok {
 		return true
 	} else {
 		return false
