@@ -84,8 +84,10 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 			continue
 		}
 
+		switch r {
+
 		// ignore comments
-		if r == '/' {
+		case '/':
 			r, _, err := l.r.ReadRune()
 			if err != nil {
 				if err == io.EOF {
@@ -142,48 +144,51 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 				}
 
 			}
-		}
-		if unicode.IsSpace(r) {
-			continue
-		} else if isIdentifier(r) {
-			sp := l.pos
-			l.Unread()
-			lit := l.Identifier()
-			if _, ok := KeywordMap[lit]; ok {
-				return sp, KEYWORD, lit
-			}
-			if _, ok := DefaultTypeMap[lit]; ok {
-				return sp, TYPE, lit
-			}
-			return sp, IDENTIFIER, lit
-		} else if isOperator(r) {
-			sp := l.pos
 
-			l.Unread()
-			lit := l.Operator()
-			return sp, OPERATOR, lit
-		} else if unicode.IsDigit(r) {
-			sp := l.pos
-			l.Unread()
-			lit := l.Number()
-			return sp, NUM, lit
-		} else if r == '"' || r == '\'' || r == '`' {
-			sp := l.pos
-			l.Unread()
-			lit := l.Literal()
-			return sp, LITERAL, lit
-		} else if r == '(' {
+		case '(':
 			return l.pos, LPAREN, string(r)
-		} else if r == ')' {
+		case ')':
 			return l.pos, RPAREN, string(r)
-		} else if r == '{' {
+		case '{':
 			return l.pos, LBRACE, string(r)
-		} else if r == '}' {
+		case '}':
 			return l.pos, RBRACE, string(r)
-		} else if r == ';' {
+		case ';':
 			return l.pos, SEMICOL, string(r)
-		} else if r == ',' {
+		case ',':
 			return l.pos, COMMA, string(r)
+		default:
+			if unicode.IsSpace(r) {
+				continue
+			} else if isIdentifier(r) {
+				sp := l.pos
+				l.Unread()
+				lit := l.Identifier()
+				if _, ok := KeywordMap[lit]; ok {
+					return sp, KEYWORD, lit
+				}
+				if _, ok := DefaultTypeMap[lit]; ok {
+					return sp, TYPE, lit
+				}
+				return sp, IDENTIFIER, lit
+			} else if isOperator(r) {
+				sp := l.pos
+
+				l.Unread()
+				lit := l.Operator()
+				return sp, OPERATOR, lit
+			} else if unicode.IsDigit(r) {
+				sp := l.pos
+				l.Unread()
+				lit := l.Number()
+				return sp, NUM, lit
+			} else if r == '"' || r == '\'' || r == '`' {
+				sp := l.pos
+				l.Unread()
+				lit := l.Literal()
+				return sp, LITERAL, lit
+			}
+
 		}
 	}
 }
