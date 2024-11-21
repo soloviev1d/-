@@ -12,6 +12,7 @@ const (
 	EOF = iota
 	TYPE
 	OPERATOR
+	PUNCTUATION
 	KEYWORD
 	IDENTIFIER
 	COMMENT
@@ -20,14 +21,15 @@ const (
 )
 
 var tokens = []string{
-	EOF:        "EOF",
-	TYPE:       "DEFAULT TYPE",
-	OPERATOR:   "OPERATOR/PUNCTUATION",
-	KEYWORD:    "KEYWORD",
-	IDENTIFIER: "IDENTIFIER",
-	COMMENT:    "COMMENT",
-	LITERAL:    "LITERAL",
-	NUM:        "NUM",
+	EOF:         "EOF",
+	TYPE:        "DEFAULT TYPE",
+	OPERATOR:    "OPERATOR",
+	PUNCTUATION: "PUNCTUATION",
+	KEYWORD:     "KEYWORD",
+	IDENTIFIER:  "IDENTIFIER",
+	COMMENT:     "COMMENT",
+	LITERAL:     "LITERAL",
+	NUM:         "NUM",
 }
 
 func (t Token) String() string {
@@ -48,7 +50,7 @@ func NewLexer(reader io.Reader) *Lexer {
 	i := 2.5
 	i++
 	return &Lexer{
-		pos: &Position{Line: 0, Col: 0},
+		pos: &Position{Line: 1, Col: 1},
 		r:   bufio.NewReader(reader),
 	}
 }
@@ -148,12 +150,20 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 			l.Unread()
 			lit := l.Operator()
 			return sp, OPERATOR, lit
+		} else if isPunct(r) {
+
+			sp := l.pos
+
+			l.Unread()
+			lit := l.Punctuation()
+			return sp, PUNCTUATION, lit
+
 		} else if unicode.IsDigit(r) {
 			sp := l.pos
 			l.Unread()
 			lit := l.Number()
 			return sp, NUM, lit
-		} else if r == '"'{
+		} else if r == '"' || r == '\'' || r == '`' {
 			sp := l.pos
 			l.Unread()
 			lit := l.Literal()
@@ -191,11 +201,9 @@ func (l *Lexer) Identifier() string {
 	}
 }
 
-func (l *Lexer) Literal() string{
-	var (
-		lit string
-		i = 0
-	)
+func (l *Lexer) Literal() string {
+	var lit string
+
 	for {
 		r, _, err := l.r.ReadRune()
 		if err != nil {
@@ -203,21 +211,25 @@ func (l *Lexer) Literal() string{
 				return lit
 			}
 		}
+		if r == '\\' {
+			lit += string(r)
+			r, _, err = l.r.ReadRune()
+			if err != nil {
+				if err == io.EOF {
+					return lit
+				}
+			}
+			l.pos.Col++
+			lit += string(r)
+			continue
+		}
 
 		l.pos.Col++
-		/* if  !unicode.IsPunct(r) || i == 0 {
-			lit += string(r)
-		} else {
-			l.Unread()
+		lit += string(r)
+		if rune(lit[0]) == r && len(lit) > 1 {
 			return lit
-		} */
+		}
 
-			lit += string(r)
-		if  unicode.IsPunct(r) && i != 0 {
-			l.Unread()
-			return lit
-		} 
-		i++
 	}
 }
 func (l *Lexer) Number() string {
@@ -240,6 +252,31 @@ func (l *Lexer) Number() string {
 	}
 }
 
+func (l *Lexer) Punctuation() string {
+	var p string
+	for {
+		r, _, err := l.r.ReadRune()
+		if err != nil {
+			if err == io.EOF {
+				return p
+			}
+		}
+
+		l.pos.Col++
+		if r == '\n' {
+			l.Unread()
+			return p
+		}
+		if _, ok := PunctMap[r]; ok {
+			p += string(r)
+		} else {
+			l.Unread()
+			return p
+		}
+	}
+
+}
+
 func (l *Lexer) Operator() string {
 	var op string
 	for {
@@ -251,11 +288,6 @@ func (l *Lexer) Operator() string {
 		}
 
 		l.pos.Col++
-		// if !unicode.IsLetter(r) &&
-		// 	!unicode.IsSpace(r) &&
-		// 	!unicode.IsDigit(r) &&
-		// 	r != '\n' &&
-		// 	!unicode.IsSpace(r) {
 		if r == '\n' {
 			l.Unread()
 			return op
