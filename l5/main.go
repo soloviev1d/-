@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	file, err := os.Open("lexer/lexer.go")
+	file, err := os.Open("test")
 	if err != nil {
 		panic(err)
 	}

@@ -45,6 +45,8 @@ type Lexer struct {
 }
 
 func NewLexer(reader io.Reader) *Lexer {
+	i := 2.5
+	i++
 	return &Lexer{
 		pos: &Position{Line: 0, Col: 0},
 		r:   bufio.NewReader(reader),
@@ -151,6 +153,11 @@ func (l *Lexer) Lex() (*Position, Token, string) {
 			l.Unread()
 			lit := l.Number()
 			return sp, NUM, lit
+		} else if r == '"'{
+			sp := l.pos
+			l.Unread()
+			lit := l.Literal()
+			return sp, LITERAL, lit
 		}
 		// panic(err)
 
@@ -184,6 +191,35 @@ func (l *Lexer) Identifier() string {
 	}
 }
 
+func (l *Lexer) Literal() string{
+	var (
+		lit string
+		i = 0
+	)
+	for {
+		r, _, err := l.r.ReadRune()
+		if err != nil {
+			if err == io.EOF {
+				return lit
+			}
+		}
+
+		l.pos.Col++
+		/* if  !unicode.IsPunct(r) || i == 0 {
+			lit += string(r)
+		} else {
+			l.Unread()
+			return lit
+		} */
+
+			lit += string(r)
+		if  unicode.IsPunct(r) && i != 0 {
+			l.Unread()
+			return lit
+		} 
+		i++
+	}
+}
 func (l *Lexer) Number() string {
 	var num string
 	for {

@@ -35,6 +35,7 @@ var OpMap = map[rune]struct{}{
 	';': struct{}{},
 }
 
+// var PunctMap = map[rune]
 /* keywords
 break        default      func         interface    select
 case         defer        go           map          struct
