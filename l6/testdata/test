@@ -1,1 +1,1 @@
-for a == c {
+for a == true {}

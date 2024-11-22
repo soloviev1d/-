@@ -25,6 +25,13 @@ var reduceRuleset map[string]lexer.Token = map[string]lexer.Token{
 	stringOfTokens([]lexer.Token{lexer.BOOLVAL}): lexer.NONTERM,
 	// S -> S LOGOP S
 	stringOfTokens([]lexer.Token{lexer.NONTERM, lexer.LOGOP, lexer.NONTERM}): lexer.NONTERM,
+	// S -> S LOGOP x
+	stringOfTokens([]lexer.Token{lexer.NONTERM, lexer.LOGOP, lexer.NUM}): lexer.NONTERM,
+	// S -> x LOGOP S
+	stringOfTokens([]lexer.Token{lexer.NUM, lexer.LOGOP, lexer.NONTERM}): lexer.NONTERM,
+
+	// S -> x LOGOP x
+	stringOfTokens([]lexer.Token{lexer.NUM, lexer.LOGOP, lexer.NUM}): lexer.NONTERM,
 }
 
 // func (p *Parser) reduce() bool {
@@ -66,6 +73,7 @@ func (p *Parser) parseTokens(tokens []lexer.Token) {
 						mem = append(mem[:1], mem[0:]...)
 						mem[0] = sub
 					}
+					j = 0
 
 				}
 			}
